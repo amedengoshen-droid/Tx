@@ -363,15 +363,19 @@
         <div class="summary">
             <div class="summary-card income">
                 <label>Total Income</label>
-                <div class="amount" id="totalIncome">$0.00</div>
+                <div class="amount" id="totalIncome">₦0.00</div>
             </div>
             <div class="summary-card expense">
                 <label>Total Expenses</label>
-                <div class="amount" id="totalExpenses">$0.00</div>
+                <div class="amount" id="totalExpenses">₦0.00</div>
             </div>
             <div class="summary-card balance">
                 <label>Net Balance</label>
-                <div class="amount" id="netBalance">$0.00</div>
+                <div class="amount" id="netBalance">₦0.00</div>
+            </div>
+            <div class="summary-card balance">
+                <label>Total Entries</label>
+                <div class="amount" id="totalEntries" style="color: #667eea;">0</div>
             </div>
         </div>
 
@@ -391,7 +395,7 @@
                 <div id="incomeForm" style="display: none; margin-bottom: 20px;">
                     <div class="input-group">
                         <input type="date" id="incomeDate" required>
-                        <input type="text" id="incomeSource" placeholder="Source (e.g., Salary, Freelance)">
+                        <input type="text" id="incomeSource" placeholder="Source (e.g., Salary, IFY)">
                         <input type="number" id="incomeAmount" placeholder="Amount" step="0.01">
                         <button class="btn-primary" onclick="addIncome()">Add</button>
                     </div>
@@ -414,7 +418,7 @@
                 <div id="expenseForm" style="display: none; margin-bottom: 20px;">
                     <div class="input-group">
                         <input type="date" id="expenseDate" required>
-                        <input type="text" id="expenseItem" placeholder="Item (e.g., Groceries, Gas)">
+                        <input type="text" id="expenseItem" placeholder="Item (e.g., Groceries, Airtime)">
                         <input type="number" id="expenseAmount" placeholder="Amount" step="0.01">
                         <button class="btn-primary" onclick="addExpense()">Add</button>
                     </div>
@@ -527,7 +531,7 @@
                 html += `<tr>
                     <td>${item.date}</td>
                     <td>${item.source}</td>
-                    <td class="amount-cell">$${parseFloat(item.amount).toFixed(2)}</td>
+                    <td class="amount-cell">₦${parseFloat(item.amount).toFixed(2)}</td>
                     <td><button class="btn-danger" onclick="deleteIncome(${index})">Delete</button></td>
                 </tr>`;
             });
@@ -547,7 +551,7 @@
                 html += `<tr>
                     <td>${item.date}</td>
                     <td>${item.item}</td>
-                    <td class="amount-cell">$${parseFloat(item.amount).toFixed(2)}</td>
+                    <td class="amount-cell">₦${parseFloat(item.amount).toFixed(2)}</td>
                     <td><button class="btn-danger" onclick="deleteExpense(${index})">Delete</button></td>
                 </tr>`;
             });
@@ -560,10 +564,12 @@
             const totalIncome = data.income.reduce((sum, item) => sum + parseFloat(item.amount), 0);
             const totalExpenses = data.expenses.reduce((sum, item) => sum + parseFloat(item.amount), 0);
             const balance = totalIncome - totalExpenses;
+            const totalEntries = data.income.length + data.expenses.length;
 
-            document.getElementById('totalIncome').textContent = `$${totalIncome.toFixed(2)}`;
-            document.getElementById('totalExpenses').textContent = `$${totalExpenses.toFixed(2)}`;
-            document.getElementById('netBalance').textContent = `$${balance.toFixed(2)}`;
+            document.getElementById('totalIncome').textContent = `₦${totalIncome.toFixed(2)}`;
+            document.getElementById('totalExpenses').textContent = `₦${totalExpenses.toFixed(2)}`;
+            document.getElementById('netBalance').textContent = `₦${balance.toFixed(2)}`;
+            document.getElementById('totalEntries').textContent = totalEntries;
         }
 
         // Form controls
@@ -607,7 +613,9 @@
                 const imported = JSON.parse(code);
                 
                 if (imported.income && imported.expenses) {
-                    data = imported;
+                    // MERGE data instead of replacing - THIS IS THE FIX
+                    data.income = [...data.income, ...imported.income];
+                    data.expenses = [...data.expenses, ...imported.expenses];
                     saveData();
                     closeImportModal();
                     alert('Data imported successfully!');
