@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthyFR</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .summary-card.income {
+            border-left-color: #10b981;
+        }
+
+        .summary-card.expense {
+            border-left-color: #ef4444;
+        }
+
+        .summary-card.balance {
+            border-left-color: #667eea;
+        }
+
+        .summary-card label {
+            display: block;
+            font-size: 0.85em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .summary-card .amount {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .summary-card.income .amount {
+            color: #10b981;
+        }
+
+        .summary-card.expense .amount {
+            color: #ef4444;
+        }
+
+        .summary-card.balance .amount {
+            color: #667eea;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .import-export {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #10b981;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section.income h2 {
+            color: #10b981;
+        }
+
+        .section.expense h2 {
+            color: #ef4444;
+        }
+
+        .section-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: end;
+        }
+
+        input[type="date"],
+        input[type="text"],
+        input[type="number"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        input[type="date"]:focus,
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        thead {
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .amount-cell {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .section.income .amount-cell {
+            color: #10b981;
+        }
+
+        .section.expense .amount-cell {
+            color: #ef4444;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state p {
+            font-size: 0.95em;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 10px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .input-group {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            th, td {
+                padding: 8px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 WealthyFR</h1>
+            <p>Track your income and expenses, one transaction at a time</p>
+        </div>
+
+        <div class="summary">
+            <div class="summary-card income">
+                <label>Total Income</label>
+                <div class="amount" id="totalIncome">$0.00</div>
+            </div>
+            <div class="summary-card expense">
+                <label>Total Expenses</label>
+                <div class="amount" id="totalExpenses">$0.00</div>
+            </div>
+            <div class="summary-card balance">
+                <label>Net Balance</label>
+                <div class="amount" id="netBalance">$0.00</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="import-export">
+                <button class="btn-primary" onclick="openImportModal()">📥 Import Data</button>
+                <button class="btn-secondary" onclick="downloadData()">⬇️ Download Data</button>
+            </div>
+
+            <!-- INCOME SECTION -->
+            <div class="section income">
+                <h2>➕ Income</h2>
+                <div class="section-controls">
+                    <button class="btn-primary" onclick="openIncomeForm()">+ Add Income</button>
+                </div>
+                
+                <div id="incomeForm" style="display: none; margin-bottom: 20px;">
+                    <div class="input-group">
+                        <input type="date" id="incomeDate" required>
+                        <input type="text" id="incomeSource" placeholder="Source (e.g., Salary, Freelance)">
+                        <input type="number" id="incomeAmount" placeholder="Amount" step="0.01">
+                        <button class="btn-primary" onclick="addIncome()">Add</button>
+                    </div>
+                </div>
+
+                <div id="incomeTable">
+                    <div class="empty-state">
+                        <p>No income entries yet. Add one to get started!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EXPENSES SECTION -->
+            <div class="section expense">
+                <h2>➖ Expenses</h2>
+                <div class="section-controls">
+                    <button class="btn-primary" onclick="openExpenseForm()">+ Add Expense</button>
+                </div>
+
+                <div id="expenseForm" style="display: none; margin-bottom: 20px;">
+                    <div class="input-group">
+                        <input type="date" id="expenseDate" required>
+                        <input type="text" id="expenseItem" placeholder="Item (e.g., Groceries, Gas)">
+                        <input type="number" id="expenseAmount" placeholder="Amount" step="0.01">
+                        <button class="btn-primary" onclick="addExpense()">Add</button>
+                    </div>
+                </div>
+
+                <div id="expenseTable">
+                    <div class="empty-state">
+                        <p>No expense entries yet. Add one to get started!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMPORT MODAL -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <h3>📥 Import Data</h3>
+            <p style="margin-bottom: 15px; color: #666; font-size: 0.9em;">Paste the data code here and it will load automatically:</p>
+            <textarea id="importData" placeholder="Paste your data code here..."></textarea>
+            <div class="modal-buttons">
+                <button class="btn-primary" onclick="importData()">Import</button>
+                <button onclick="closeImportModal()" style="padding: 10px 20px; background: #ddd; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize data
+        let data = {
+            income: [],
+            expenses: []
+        };
+
+        // Load from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('wealthyFR');
+            if (saved) {
+                data = JSON.parse(saved);
+            }
+            render();
+        }
+
+        // Save to localStorage
+        function saveData() {
+            localStorage.setItem('wealthyFR', JSON.stringify(data));
+            updateSummary();
+            render();
+        }
+
+        // Add income
+        function addIncome() {
+            const date = document.getElementById('incomeDate').value;
+            const source = document.getElementById('incomeSource').value;
+            const amount = parseFloat(document.getElementById('incomeAmount').value);
+
+            if (!date || !source || !amount) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            data.income.push({ date, source, amount });
+            saveData();
+            clearIncomeForm();
+        }
+
+        // Add expense
+        function addExpense() {
+            const date = document.getElementById('expenseDate').value;
+            const item = document.getElementById('expenseItem').value;
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+
+            if (!date || !item || !amount) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            data.expenses.push({ date, item, amount });
+            saveData();
+            clearExpenseForm();
+        }
+
+        // Delete income
+        function deleteIncome(index) {
+            data.income.splice(index, 1);
+            saveData();
+        }
+
+        // Delete expense
+        function deleteExpense(index) {
+            data.expenses.splice(index, 1);
+            saveData();
+        }
+
+        // Render tables
+        function render() {
+            renderIncomeTable();
+            renderExpenseTable();
+        }
+
+        function renderIncomeTable() {
+            const container = document.getElementById('incomeTable');
+            if (data.income.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No income entries yet. Add one to get started!</p></div>';
+                return;
+            }
+
+            let html = '<div class="table-wrapper"><table><thead><tr><th>Date</th><th>Source</th><th>Amount</th><th></th></tr></thead><tbody>';
+            data.income.forEach((item, index) => {
+                html += `<tr>
+                    <td>${item.date}</td>
+                    <td>${item.source}</td>
+                    <td class="amount-cell">$${parseFloat(item.amount).toFixed(2)}</td>
+                    <td><button class="btn-danger" onclick="deleteIncome(${index})">Delete</button></td>
+                </tr>`;
+            });
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        function renderExpenseTable() {
+            const container = document.getElementById('expenseTable');
+            if (data.expenses.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No expense entries yet. Add one to get started!</p></div>';
+                return;
+            }
+
+            let html = '<div class="table-wrapper"><table><thead><tr><th>Date</th><th>Item</th><th>Amount</th><th></th></tr></thead><tbody>';
+            data.expenses.forEach((item, index) => {
+                html += `<tr>
+                    <td>${item.date}</td>
+                    <td>${item.item}</td>
+                    <td class="amount-cell">$${parseFloat(item.amount).toFixed(2)}</td>
+                    <td><button class="btn-danger" onclick="deleteExpense(${index})">Delete</button></td>
+                </tr>`;
+            });
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        // Update summary
+        function updateSummary() {
+            const totalIncome = data.income.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+            const totalExpenses = data.expenses.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+            const balance = totalIncome - totalExpenses;
+
+            document.getElementById('totalIncome').textContent = `$${totalIncome.toFixed(2)}`;
+            document.getElementById('totalExpenses').textContent = `$${totalExpenses.toFixed(2)}`;
+            document.getElementById('netBalance').textContent = `$${balance.toFixed(2)}`;
+        }
+
+        // Form controls
+        function openIncomeForm() {
+            document.getElementById('incomeForm').style.display = 'block';
+            document.getElementById('incomeDate').focus();
+        }
+
+        function clearIncomeForm() {
+            document.getElementById('incomeForm').style.display = 'none';
+            document.getElementById('incomeDate').value = '';
+            document.getElementById('incomeSource').value = '';
+            document.getElementById('incomeAmount').value = '';
+        }
+
+        function openExpenseForm() {
+            document.getElementById('expenseForm').style.display = 'block';
+            document.getElementById('expenseDate').focus();
+        }
+
+        function clearExpenseForm() {
+            document.getElementById('expenseForm').style.display = 'none';
+            document.getElementById('expenseDate').value = '';
+            document.getElementById('expenseItem').value = '';
+            document.getElementById('expenseAmount').value = '';
+        }
+
+        // Import/Export
+        function openImportModal() {
+            document.getElementById('importModal').classList.add('active');
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').classList.remove('active');
+            document.getElementById('importData').value = '';
+        }
+
+        function importData() {
+            try {
+                const code = document.getElementById('importData').value;
+                const imported = JSON.parse(code);
+                
+                if (imported.income && imported.expenses) {
+                    data = imported;
+                    saveData();
+                    closeImportModal();
+                    alert('Data imported successfully!');
+                } else {
+                    alert('Invalid data format');
+                }
+            } catch (e) {
+                alert('Error parsing data: ' + e.message);
+            }
+        }
+
+        function downloadData() {
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `wealthyfr-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize on load
+        window.addEventListener('load', loadData);
+    </script>
+</body>
+</html>
